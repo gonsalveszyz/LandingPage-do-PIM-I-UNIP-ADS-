@@ -1,0 +1,15 @@
+{
+    // Use o IntelliSense para saber mais sobre os atributos possíveis.
+    // Focalizar para exibir as descrições dos atributos existentes.
+    // Para obter mais informações, acesse: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Abrir UNIP.IA no Chrome",
+            "request": "launch",
+            "type": "chrome",
+            "file": "${workspaceFolder}/UNIP_IA_OpenAI_assets/UNIP_IA_OpenAI (1).html",
+            "webRoot": "${workspaceFolder}"
+        }
+    ]
+}
