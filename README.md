@@ -117,7 +117,7 @@ open UNIP_IA_OpenAI.html
 
 | Nome | RA |
 |---|---|
-| Arthur G. de Oliveira | R286EF3 |
+| Arthur G. de Oliveira | R286EF3 | www.linkedin.com/in/arthur-gonçalves-de-oliveira-0079b33a3 |
 | Kauã S. Brito | H96AFB1 |
 | Gabriel L. N. de Carvalho | R326179 |
 | Cauã P. Nogueira | H9599F4 |
@@ -146,6 +146,6 @@ Este projeto foi desenvolvido para fins **acadêmicos** no contexto do PIM I da 
 
 <div align="center">
 
-Feito com ☕ e 🤖 pela turma de ADS 2026 — UNIP
+Feito com ☕  e pelo grupo de ADS 2026 — UNIP
 
 </div>
