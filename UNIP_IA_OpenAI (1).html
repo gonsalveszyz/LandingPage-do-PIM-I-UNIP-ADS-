@@ -1,0 +1,1525 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UNIP.IA | Datacenters da OpenAI – PIM I</title>
+    <link href="UNIP_IA_OpenAI_assets/fonts/google-fonts.css" rel="stylesheet">
+    <link rel="stylesheet" href="UNIP_IA_OpenAI_assets/fontawesome/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-base: #09090b;
+            --sidebar-bg: #111113;
+            --surface-card: rgba(20, 20, 24, 0.75);
+            --text-main: #f1f5f9;
+            --text-muted: #94a3b8;
+
+            --color-perfil:  #3b82f6;
+            --color-etica:   #10b981;
+            --color-hardware:#a855f7;
+            --color-tic:     #f59e0b;
+            --color-python:  #ef4444;
+
+            --active-color: var(--color-perfil);
+        }
+
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* ═══════════════ SIDEBAR ═══════════════ */
+        .sidebar {
+            width: 300px;
+            min-width: 300px;
+            background: var(--sidebar-bg);
+            padding: 2rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(255,255,255,0.05);
+            z-index: 10;
+            box-shadow: 6px 0 30px rgba(0,0,0,0.6);
+        }
+
+        .logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.9rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+            letter-spacing: -1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: white;
+        }
+        .logo i { color: var(--active-color); transition: color 0.4s; }
+        .logo span { color: var(--active-color); transition: color 0.4s; }
+
+        .logo-sub {
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-bottom: 2.5rem;
+            padding-left: 2px;
+        }
+
+        .nav-section-label {
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #a1a1aa;
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .nav-links { list-style: none; display: flex; flex-direction: column; gap: 0.3rem; }
+
+        .nav-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            text-align: left;
+            font-size: 0.95rem;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            padding: 1rem 1rem;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+        }
+        .nav-btn i { font-size: 1.1rem; width: 22px; text-align: center; }
+        .nav-btn:hover { background: rgba(255,255,255,0.05); color: #e2e8f0; transform: translateX(4px); }
+
+        .nav-btn.active[data-target="perfil"]   { background: rgba(59,130,246,0.12);  border-left: 3px solid var(--color-perfil);   color: #93c5fd; }
+        .nav-btn.active[data-target="etica"]    { background: rgba(16,185,129,0.12);  border-left: 3px solid var(--color-etica);    color: #6ee7b7; }
+        .nav-btn.active[data-target="hardware"] { background: rgba(168,85,247,0.12);  border-left: 3px solid var(--color-hardware);  color: #d8b4fe; }
+        .nav-btn.active[data-target="tic"]      { background: rgba(245,158,11,0.12);  border-left: 3px solid var(--color-tic);      color: #fde68a; }
+        .nav-btn.active[data-target="python"]   { background: rgba(239,68,68,0.12);   border-left: 3px solid var(--color-python);   color: #fca5a5; }
+
+        .sidebar-footer {
+            margin-top: auto;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 0.73rem;
+            color: #a1a1aa;
+            line-height: 1.6;
+        }
+
+        /* ═══════════════ MAIN CONTENT ═══════════════ */
+        .main-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            transition: background 0.7s ease;
+        }
+
+        .bg-perfil   { background: radial-gradient(ellipse at 80% 0%, rgba(59,130,246,0.10) 0%, var(--bg-base) 55%); }
+        .bg-etica    { background: radial-gradient(ellipse at 80% 0%, rgba(16,185,129,0.10) 0%, var(--bg-base) 55%); }
+        .bg-hardware { background: radial-gradient(ellipse at 80% 0%, rgba(168,85,247,0.10) 0%, var(--bg-base) 55%); }
+        .bg-tic      { background: radial-gradient(ellipse at 80% 0%, rgba(245,158,11,0.10) 0%, var(--bg-base) 55%); }
+        .bg-python   { background: radial-gradient(ellipse at 80% 0%, rgba(239,68,68,0.10) 0%, var(--bg-base) 55%); }
+
+        .section {
+            display: none;
+            padding: 3.5rem 5%;
+            animation: fadeUp 0.55s cubic-bezier(0.16, 1, 0.3, 1);
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+        .section.active { display: block; }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(28px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ═══════════════ HERO BANNER ═══════════════ */
+        .hero-banner {
+            width: 100%;
+            height: 260px;
+            border-radius: 18px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+        }
+        .hero-banner::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(9,9,11,0.85) 0%, rgba(9,9,11,0.3) 100%);
+        }
+        .hero-content {
+            position: absolute;
+            bottom: 28px;
+            left: 36px;
+            z-index: 2;
+        }
+        .hero-eyebrow {
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            opacity: 0.7;
+            margin-bottom: 6px;
+        }
+        .hero-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -1px;
+            text-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            line-height: 1.1;
+        }
+
+        .img-perfil   { background-image: url('UNIP_IA_OpenAI_assets/images/perfil.jpg'); }
+        .img-etica    { background-image: url('UNIP_IA_OpenAI_assets/images/etica.jpg'); }
+        .img-hardware { background-image: url('UNIP_IA_OpenAI_assets/images/hardware.jpg'); }
+        .img-tic      { background-image: url('UNIP_IA_OpenAI_assets/images/tic.jpg'); }
+        .img-python   { background-image: url('UNIP_IA_OpenAI_assets/images/python.jpg'); }
+
+        /* ═══════════════ CARDS ═══════════════ */
+        .card {
+            background: var(--surface-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 2.2rem 2.5rem;
+            border-radius: 14px;
+            margin-bottom: 1.8rem;
+            border: 1px solid rgba(255,255,255,0.07);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+            transition: transform 0.25s, box-shadow 0.25s;
+        }
+        .card:hover { transform: translateY(-2px); box-shadow: 0 14px 35px rgba(0,0,0,0.35); }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .card-header i { font-size: 1.3rem; }
+        .card-header h3 {
+            font-size: 1.25rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+        }
+        .card-badge {
+            margin-left: auto;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.3rem 0.8rem;
+            border-radius: 999px;
+            font-weight: 700;
+            opacity: 0.8;
+        }
+
+        .card p, .card li {
+            font-size: 1rem;
+            line-height: 1.85;
+            color: var(--text-muted);
+            text-align: justify;
+        }
+        .card strong { color: #e2e8f0; }
+        .card em { font-style: italic; color: #cbd5e1; }
+
+        .card ul { padding-left: 1.5rem; margin-top: 0.8rem; }
+        .card ul li { margin-bottom: 0.5rem; }
+
+        /* Grid de 2 colunas */
+        .card-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.8rem;
+        }
+        .card-grid .card { margin-bottom: 0; }
+
+        /* Summary Box */
+        .summary-box {
+            border-left: 3px solid;
+            padding: 1.2rem 1.5rem;
+            border-radius: 0 10px 10px 0;
+            background: rgba(255,255,255,0.03);
+            margin: 1.2rem 0;
+            font-size: 0.97rem;
+            line-height: 1.8;
+            color: var(--text-muted);
+        }
+
+        /* Stat chips */
+        .stat-row { display: flex; gap: 1.2rem; flex-wrap: wrap; margin: 1.2rem 0; }
+        .stat-chip {
+            flex: 1;
+            min-width: 120px;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            text-align: center;
+        }
+        .stat-chip .value {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.3rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.3rem;
+        }
+        .stat-chip .label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); }
+
+        /* Tag pills */
+        .tag-group { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem; }
+        .tag {
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.3rem 0.9rem;
+            border-radius: 999px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: var(--text-muted);
+            background: rgba(255,255,255,0.04);
+        }
+
+        /* Table */
+        .impact-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1rem; }
+        .impact-table th {
+            text-align: left;
+            padding: 0.8rem 1rem;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .impact-table td {
+            padding: 0.9rem 1rem;
+            border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: var(--text-muted);
+            line-height: 1.5;
+            vertical-align: top;
+        }
+        .impact-table tr:hover td { background: rgba(255,255,255,0.02); }
+        .impact-table .td-pos { color: #4ade80; }
+        .impact-table .td-neg { color: #f87171; }
+        .impact-table .td-label { color: #e2e8f0; font-weight: 700; }
+
+        /* ═══════════════ TERMINAL ═══════════════ */
+        .terminal-container {
+            background: #070709;
+            border: 1px solid #27272a;
+            border-radius: 12px;
+            padding: 0;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.7);
+        }
+        .terminal-topbar {
+            background: #18181b;
+            padding: 0.8rem 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid #27272a;
+        }
+        .tb-dot { width: 12px; height: 12px; border-radius: 50%; }
+        .tb-red { background: #ef4444; }
+        .tb-yellow { background: #f59e0b; }
+        .tb-green { background: #22c55e; }
+        .tb-title { margin-left: auto; margin-right: auto; font-size: 0.75rem; color: #a1a1aa; font-family: 'Fira Code', monospace; }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-family: 'Fira Code', monospace;
+            color: #4ade80;
+            height: 430px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        .terminal-output {
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.7;
+            flex: 1;
+        }
+        .terminal-input-line {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            border-top: 1px solid #1a1a1f;
+            padding-top: 0.8rem;
+        }
+        .terminal-prompt { color: #f87171; margin-right: 8px; font-weight: 600; }
+        .terminal-input {
+            background: transparent;
+            border: none;
+            color: #4ade80;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            flex: 1;
+            outline: none;
+        }
+
+        /* ═══════════════ CHATBOT ═══════════════ */
+        .chat-widget { position: fixed; bottom: 36px; right: 36px; z-index: 1000; }
+        .chat-btn {
+            width: 64px; height: 64px;
+            border-radius: 50%;
+            background: var(--active-color);
+            color: white;
+            border: none;
+            font-size: 1.6rem;
+            cursor: pointer;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+            transition: transform 0.3s, background 0.4s;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .chat-btn:hover { transform: scale(1.12) rotate(8deg); }
+
+        .chat-window {
+            display: none;
+            width: 370px; height: 520px;
+            background: #111113;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.08);
+            flex-direction: column;
+            position: absolute;
+            bottom: 80px;
+            right: 0;
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7);
+            overflow: hidden;
+        }
+        .chat-header {
+            background: var(--active-color);
+            padding: 1.2rem 1.5rem;
+            font-weight: 800;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.4s;
+            color: white;
+            font-family: 'Syne', sans-serif;
+            letter-spacing: 0.3px;
+        }
+        .chat-header-left { display: flex; align-items: center; gap: 10px; }
+        .chat-header-left i { font-size: 1.2rem; }
+        .close-chat { background: transparent; border: none; color: white; font-size: 1.4rem; cursor: pointer; opacity: 0.8; }
+        .close-chat:hover { opacity: 1; }
+
+        .chat-body {
+            flex: 1;
+            padding: 1.2rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            background: rgba(9,9,11,0.95);
+        }
+        .chat-msg {
+            padding: 0.9rem 1.1rem;
+            border-radius: 12px;
+            max-width: 88%;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .msg-bot { background: #1c1c1f; align-self: flex-start; border-bottom-left-radius: 3px; border: 1px solid rgba(255,255,255,0.06); color: #e4e4e7; }
+        .msg-user { background: var(--active-color); align-self: flex-end; color: white; border-bottom-right-radius: 3px; transition: background 0.4s; }
+
+        .chat-input-area { display: flex; padding: 0.9rem; background: #18181b; border-top: 1px solid rgba(255,255,255,0.05); gap: 0.6rem; }
+        .chat-input { flex: 1; padding: 0.85rem 1rem; border: none; background: #09090b; color: white; border-radius: 8px; outline: none; font-size: 0.9rem; font-family: 'Plus Jakarta Sans', sans-serif; }
+        .chat-send { background: var(--active-color); color: white; border: none; padding: 0 1rem; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 1rem; transition: background 0.4s, transform 0.2s; }
+        .chat-send:hover { transform: scale(1.05); }
+
+        /* ═══════════════ SCROLL ═══════════════ */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #27272a; border-radius: 10px; }
+
+        /* ═══════════════ MOBILE HEADER ═══════════════ */
+        .mobile-header {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            height: 56px;
+            background: var(--sidebar-bg);
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            z-index: 1300;
+            align-items: center;
+            padding: 0 1rem;
+            gap: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+        }
+        .hamburger-btn {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: var(--text-main);
+            font-size: 1.1rem;
+            cursor: pointer;
+            padding: 0.45rem 0.6rem;
+            border-radius: 8px;
+            line-height: 1;
+            transition: background 0.2s;
+            flex-shrink: 0;
+        }
+        .hamburger-btn:hover { background: rgba(255,255,255,0.08); }
+        .mobile-logo {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: white;
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            letter-spacing: -0.5px;
+        }
+        .mobile-logo i { color: var(--active-color); transition: color 0.4s; font-size: 1rem; }
+        .mobile-logo span { color: var(--active-color); transition: color 0.4s; }
+        .mobile-section-label {
+            margin-left: auto;
+            font-size: 0.65rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--text-muted);
+            font-weight: 600;
+            opacity: 0.7;
+        }
+
+        /* ═══════════════ SIDEBAR OVERLAY ═══════════════ */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            z-index: 1100;
+            backdrop-filter: blur(3px);
+            -webkit-backdrop-filter: blur(3px);
+        }
+        .sidebar-overlay.open { display: block; }
+
+        /* ═══════════════ IMPACT TABLE WRAPPER ═══════════════ */
+        .impact-table-wrapper {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 8px;
+        }
+
+        /* ═══════════════ RESPONSIVE ═══════════════ */
+        @media (max-width: 820px) {
+            /* Layout geral */
+            body {
+                flex-direction: column;
+                height: auto;
+                overflow: auto;
+                overflow-x: hidden;
+            }
+
+            /* Mobile top bar */
+            .mobile-header { display: flex; }
+
+            /* Sidebar vira drawer deslizante */
+            .sidebar {
+                position: fixed;
+                top: 0; left: 0; bottom: 0;
+                width: 280px;
+                min-width: 280px;
+                transform: translateX(-100%);
+                transition: transform 0.32s cubic-bezier(0.16, 1, 0.3, 1);
+                z-index: 1200;
+                overflow-y: auto;
+                padding-top: 1.4rem;
+            }
+            .sidebar.open { transform: translateX(0); }
+
+            /* Main content */
+            .main-content {
+                margin-top: 56px;
+                height: calc(100dvh - 56px);
+                min-height: calc(100vh - 56px);
+                overflow-y: auto;
+            }
+
+            /* Sections */
+            .section { padding: 1.6rem 4% 2rem; }
+
+            /* Hero banner */
+            .hero-banner { height: 150px; border-radius: 12px; margin-bottom: 1.5rem; }
+            .hero-content { bottom: 16px; left: 18px; }
+            .hero-title { font-size: 1.55rem; }
+            .hero-eyebrow { font-size: 0.65rem; }
+
+            /* Cards */
+            .card { padding: 1.3rem 1.1rem; margin-bottom: 1.2rem; }
+            .card p, .card li { font-size: 0.95rem; }
+            .card-header h3 { font-size: 1.05rem; }
+            .card-badge { display: none; }
+
+            /* Card grid → 1 coluna */
+            .card-grid { grid-template-columns: 1fr; gap: 1.2rem; margin-bottom: 1.2rem; }
+
+            /* Stat chips */
+            .stat-row { gap: 0.7rem; }
+            .stat-chip { min-width: 90px; padding: 0.8rem 0.9rem; }
+            .stat-chip .value { font-size: 1.5rem; }
+            .stat-chip .label { font-size: 0.65rem; }
+
+            /* Summary box */
+            .summary-box { font-size: 0.9rem; padding: 1rem 1.1rem; }
+
+            /* Impact table */
+            .impact-table { min-width: 480px; font-size: 0.82rem; }
+            .impact-table th, .impact-table td { padding: 0.7rem 0.8rem; }
+
+            /* Terminal */
+            .terminal-body { height: 300px; }
+            .terminal-output { font-size: 0.78rem; }
+            .terminal-input { font-size: 0.78rem; }
+            .terminal-prompt { font-size: 0.72rem; white-space: nowrap; }
+
+            /* Chatbot */
+            .chat-widget { bottom: 18px; right: 14px; }
+            .chat-window {
+                width: calc(100vw - 28px);
+                right: 0;
+                bottom: 74px;
+                height: 400px;
+                border-radius: 14px;
+            }
+            .chat-btn { width: 52px; height: 52px; font-size: 1.3rem; }
+            .chat-msg { font-size: 0.85rem; }
+            .chat-input { font-size: 0.85rem; }
+        }
+
+        @media (max-width: 480px) {
+            .hero-title { font-size: 1.25rem; }
+            .hero-banner { height: 130px; }
+            .section { padding: 1.2rem 3.5% 1.8rem; }
+            .stat-chip .value { font-size: 1.3rem; }
+            .logo-sub { margin-bottom: 1.8rem; }
+            .terminal-body { height: 260px; }
+            .terminal-prompt { font-size: 0.68rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ══════════ MOBILE HEADER ══════════ -->
+    <header class="mobile-header" id="mobileHeader">
+        <button class="hamburger-btn" id="hamburgerBtn" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="sidebar">
+            <i class="fa-solid fa-bars" aria-hidden="true"></i>
+        </button>
+        <div class="mobile-logo">
+            <i class="fa-solid fa-microchip"></i> UNIP<span>.IA</span>
+        </div>
+        <span class="mobile-section-label" id="mobileSectionLabel">PIM I · ADS</span>
+    </header>
+
+    <!-- ══════════ SIDEBAR OVERLAY ══════════ -->
+    <div class="sidebar-overlay" id="sidebarOverlay" aria-hidden="true"></div>
+
+    <!-- ══════════ SIDEBAR ══════════ -->
+    <aside class="sidebar" id="sidebar" aria-label="Navegação principal">
+        <div class="logo"><i class="fa-solid fa-microchip"></i> UNIP<span>.IA</span></div>
+        <p class="logo-sub">PIM I — ADS · 2026</p>
+
+        <p class="nav-section-label">Navegação</p>
+        <ul class="nav-links">
+            <li><button class="nav-btn active" data-target="perfil">
+                <i class="fa-solid fa-building-columns"></i> Perfil da Organização
+            </button></li>
+            <li><button class="nav-btn" data-target="etica">
+                <i class="fa-solid fa-scale-balanced"></i> Ética e Cidadania
+            </button></li>
+            <li><button class="nav-btn" data-target="hardware">
+                <i class="fa-solid fa-microchip"></i> Hardware
+            </button></li>
+            <li><button class="nav-btn" data-target="tic">
+                <i class="fa-solid fa-network-wired"></i> TIC
+            </button></li>
+            <li><button class="nav-btn" data-target="python">
+                <i class="fa-brands fa-python"></i> Terminal Python
+            </button></li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <strong style="color:#cbd5e1;">Integrantes</strong><br>
+            Arthur G. de Oliveira · R286EF3<br>
+            Kauã S. Brito · H96AFB1<br>
+            Gabriel L. N. de Carvalho · R326179<br>
+            Cauã P. Nogueira · H9599F4<br>
+            Alexandre O. Domingues · H959GB7<br>
+            Gabriel da S. R. Ferreira · H96JEG2<br><br>
+            <span>Orientador: Chen</span>
+        </div>
+    </aside>
+
+    <!-- ══════════ MAIN ══════════ -->
+    <main class="main-content bg-perfil" id="main-bg">
+
+        <!-- ══ 1. PERFIL DA ORGANIZAÇÃO ══ -->
+        <section id="perfil" class="section active">
+            <div class="hero-banner img-perfil">
+                <div class="hero-content">
+                    <p class="hero-eyebrow" style="color:var(--color-perfil);">Etapa 1</p>
+                    <h2 class="hero-title" style="color:var(--color-perfil);">Perfil da Organização</h2>
+                </div>
+            </div>
+
+            <!-- RESUMO DESTAQUE -->
+            <div class="card" style="border-top: 3px solid var(--color-perfil);">
+                <div class="card-header">
+                    <i class="fa-solid fa-file-lines" style="color:var(--color-perfil);"></i>
+                    <h3 style="color:var(--color-perfil);">Resumo — Perfil da Organização</h3>
+                    <span class="card-badge" style="background:rgba(59,130,246,0.15);color:#93c5fd;">RESUMO</span>
+                </div>
+                <div class="summary-box" style="border-color:var(--color-perfil);">
+                    Este trabalho analisa a infraestrutura de datacenters empregada pela <strong>OpenAI</strong>, uma das principais organizações globais no desenvolvimento de Inteligência Artificial. A OpenAI opera como uma empresa de pesquisa e implantação de IA, responsável por sistemas de grande impacto como o ChatGPT e o GPT-4. Sua operação depende de uma infraestrutura computacional massiva e distribuída, composta por datacenters de alta performance localizados estrategicamente ao redor do mundo. A organização firmou parceria com a <strong>Microsoft</strong> (plataforma Azure) e anunciou o <strong>Projeto Stargate</strong> — um investimento bilionário para expandir a infraestrutura de IA em escala gigawatt. A pesquisa adota metodologia bibliográfica com fontes institucionais e acadêmicas, concluindo que a evolução da IA está diretamente atrelada à expansão física e energética de datacenters especializados, exigindo equilíbrio entre inovação tecnológica, sustentabilidade e responsabilidade ética.
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-building" style="color:var(--color-perfil);"></i>
+                        <h3>Sobre a OpenAI</h3>
+                    </div>
+                    <p>A <strong>OpenAI</strong> é uma organização de pesquisa e desenvolvimento em Inteligência Artificial, fundada em 2015. Responsável por produtos de alto impacto global como o <strong>ChatGPT</strong>, o <strong>GPT-4</strong> e o <strong>DALL-E</strong>, a empresa se tornou referência mundial no desenvolvimento de modelos de linguagem de grande escala (LLMs).</p>
+                    <div class="tag-group">
+                        <span class="tag">ChatGPT</span>
+                        <span class="tag">GPT-4</span>
+                        <span class="tag">DALL-E</span>
+                        <span class="tag">Sora</span>
+                        <span class="tag">Whisper</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-chart-line" style="color:var(--color-perfil);"></i>
+                        <h3>Escala Global</h3>
+                    </div>
+                    <div class="stat-row">
+                        <div class="stat-chip">
+                            <div class="value" style="color:var(--color-perfil);">~1GW</div>
+                            <div class="label">Consumo energético</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="value" style="color:var(--color-perfil);">100B+</div>
+                            <div class="label">Parâmetros GPT-4</div>
+                        </div>
+                        <div class="stat-chip">
+                            <div class="value" style="color:var(--color-perfil);">500B+</div>
+                            <div class="label">USD investidos</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-rocket" style="color:var(--color-perfil);"></i>
+                    <h3>Projeto Stargate — Nova Fase da Infraestrutura de IA</h3>
+                </div>
+                <p>O <strong>Projeto Stargate</strong> representa uma das maiores iniciativas de infraestrutura tecnológica da história recente. Com foco em <strong>expansão em escala gigawatt</strong>, infraestrutura distribuída e parcerias globais, o projeto sinaliza a consolidação da IA como infraestrutura estratégica de nível global — equiparável à energia elétrica e às telecomunicações. A OpenAI, em parceria com a Microsoft e investidores como a SoftBank, comprometeu mais de USD 500 bilhões para construir novos datacenters nos Estados Unidos e em outros países.</p>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-book-open" style="color:var(--color-perfil);"></i>
+                    <h3>Sobre este Trabalho</h3>
+                </div>
+                <p>Este <strong>Projeto Integrado Multidisciplinar I (PIM I)</strong> foi desenvolvido no <strong>Curso Superior de Tecnologia em Análise e Desenvolvimento de Sistemas</strong> da <strong>Universidade Paulista – UNIP</strong>, com o objetivo de analisar a infraestrutura de datacenters utilizada na IA, abordando aspectos técnicos, ambientais, éticos e socioeconômicos. A metodologia adotada é bibliográfica, baseada em fontes institucionais, acadêmicas e publicações especializadas.</p>
+                <div class="tag-group">
+                    <span class="tag">UNIP · 2026</span>
+                    <span class="tag">ADS</span>
+                    <span class="tag">Bibliográfico</span>
+                    <span class="tag">Multidisciplinar</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ 2. ÉTICA E CIDADANIA ══ -->
+        <section id="etica" class="section">
+            <div class="hero-banner img-etica">
+                <div class="hero-content">
+                    <p class="hero-eyebrow" style="color:var(--color-etica);">Etapa 2</p>
+                    <h2 class="hero-title" style="color:var(--color-etica);">Ética e Cidadania</h2>
+                </div>
+            </div>
+
+            <!-- RESUMO DESTAQUE -->
+            <div class="card" style="border-top: 3px solid var(--color-etica);">
+                <div class="card-header">
+                    <i class="fa-solid fa-file-lines" style="color:var(--color-etica);"></i>
+                    <h3 style="color:var(--color-etica);">Resumo — Ética e Cidadania</h3>
+                    <span class="card-badge" style="background:rgba(16,185,129,0.15);color:#6ee7b7;">RESUMO</span>
+                </div>
+                <div class="summary-box" style="border-color:var(--color-etica);">
+                    A ética na Inteligência Artificial representa o conjunto de princípios que orientam o desenvolvimento e o uso responsável dessa tecnologia. O trabalho identifica que a infraestrutura da IA está <strong>concentrada em poucas corporações globais</strong> — OpenAI, Microsoft e NVIDIA —, gerando um cenário de centralização de poder, controle assimétrico de dados e dependência tecnológica global. Do ponto de vista socioambiental, os datacenters consomem energia em escala comparável à de pequenas cidades, gerando pegada de carbono e pressão sobre recursos hídricos. Socialmente, a IA promove automação e transformação do mercado de trabalho, ao mesmo tempo em que amplia o risco de exclusão digital e desigualdade. Conclui-se que o avanço tecnológico deve ser guiado não apenas pela capacidade computacional, mas por <strong>responsabilidade social, transparência e equidade</strong>, com regulação internacional e democratização do acesso como condições essenciais para um desenvolvimento ético da IA.
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-scale-balanced" style="color:var(--color-etica);"></i>
+                        <h3>Centralização Tecnológica</h3>
+                    </div>
+                    <p>A infraestrutura de IA está concentrada em poucas organizações. Esse cenário cria <strong>barreiras de entrada</strong> gigantescas e concentra o poder de decisão, tornando países e empresas menores dependentes de infraestruturas controladas por grandes corporações. A <strong>soberania digital</strong> de nações pode ser comprometida.</p>
+                    <ul>
+                        <li>Concentração de poder tecnológico</li>
+                        <li>Monopólio de dados e modelos</li>
+                        <li>Vulnerabilidade estratégica nacional</li>
+                    </ul>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-shield-halved" style="color:var(--color-etica);"></i>
+                        <h3>Controle de Dados</h3>
+                    </div>
+                    <p>Os datacenters armazenam volumes imensos de dados pessoais e corporativos. Questões fundamentais emergem: <strong>quem controla esses dados?</strong> Como são utilizados? Existe transparência real no processo? A falta de respostas claras levanta preocupações sobre privacidade, uso indevido e vigilância em larga escala.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-people-group" style="color:var(--color-etica);"></i>
+                    <h3>Automação, Trabalho e Exclusão Digital</h3>
+                </div>
+                <p>A IA está redefinindo o mercado de trabalho de forma profunda. A automação de tarefas repetitivas cria novos empregos em áreas de tecnologia, dados e engenharia, mas também elimina funções operacionais em ritmo acelerado, exigindo <strong>requalificação profissional</strong> em larga escala. Paralelamente, a exclusão digital — o acesso desigual à infraestrutura de IA — pode ampliar desigualdades sociais tanto entre indivíduos quanto entre nações.</p>
+                <div class="card-grid" style="margin-top:1.2rem; margin-bottom:0;">
+                    <div style="padding:1rem; background:rgba(16,185,129,0.08); border-radius:10px; border:1px solid rgba(16,185,129,0.2);">
+                        <p style="color:#34d399; font-weight:700; margin-bottom:0.5rem;"><i class="fa-solid fa-circle-plus"></i> Impactos Positivos</p>
+                        <p style="text-align:left;">Criação de novas profissões em TI, IA e dados; aumento de produtividade; redução de erros humanos em processos críticos.</p>
+                    </div>
+                    <div style="padding:1rem; background:rgba(239,68,68,0.08); border-radius:10px; border:1px solid rgba(239,68,68,0.2);">
+                        <p style="color:#f87171; font-weight:700; margin-bottom:0.5rem;"><i class="fa-solid fa-circle-minus"></i> Impactos Negativos</p>
+                        <p style="text-align:left;">Substituição de empregos operacionais; necessidade de requalificação; aumento da desigualdade econômica; exclusão digital.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-leaf" style="color:var(--color-etica);"></i>
+                    <h3>Ética Socioambiental — Sustentabilidade dos Datacenters</h3>
+                </div>
+                <p>A ética não se restringe ao uso da IA — ela abrange a <strong>infraestrutura que a sustenta</strong>. O consumo energético de datacenters pode atingir a escala de gigawatts (GW), o que levanta questões éticas profundas: a expansão da IA está competindo com o consumo energético da população? O uso intensivo de água para resfriamento pode agravar crises hídricas em regiões específicas. A emissão de gases de efeito estufa por datacenters alimentados por fontes fósseis aprofunda o impacto climático.</p>
+                <div class="stat-row">
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-etica);">PUE 1.2</div>
+                        <div class="label">Datacenters modernos</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-etica);">PUE 2.0</div>
+                        <div class="label">Datacenters tradicionais</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-etica);">PUE 1.0</div>
+                        <div class="label">Meta ideal</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Impactos -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-table" style="color:var(--color-etica);"></i>
+                    <h3>Tabela de Impactos da IA (Anexo A do PIM)</h3>
+                </div>
+                <div class="impact-table-wrapper">
+                <table class="impact-table">
+                    <thead>
+                        <tr>
+                            <th>Dimensão</th>
+                            <th>Impactos Positivos</th>
+                            <th>Impactos Negativos</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="td-label">Tecnológico</td>
+                            <td class="td-pos">Avanço em IA e automação; maior eficiência computacional</td>
+                            <td class="td-neg">Dependência de hardware específico; risco de obsolescência</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Ambiental</td>
+                            <td class="td-pos">Energias renováveis; reuso de calor; eficiência PUE</td>
+                            <td class="td-neg">Alto consumo energético; uso intensivo de água; pegada de carbono</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Social</td>
+                            <td class="td-pos">Novos empregos em TI; aumento de produtividade</td>
+                            <td class="td-neg">Substituição de empregos; exclusão digital; desigualdade</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Econômico</td>
+                            <td class="td-pos">Crescimento do setor tech; novos modelos de negócio</td>
+                            <td class="td-neg">Concentração de poder; barreiras de entrada; oligopólio tecnológico</td>
+                        </tr>
+                        <tr>
+                            <td class="td-label">Ético</td>
+                            <td class="td-pos">Transparência regulatória; frameworks de ética em IA</td>
+                            <td class="td-neg">Vieses algorítmicos; controle de dados; falta de responsabilidade</td>
+                        </tr>
+                    </tbody>
+                </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ 3. HARDWARE ══ -->
+        <section id="hardware" class="section">
+            <div class="hero-banner img-hardware">
+                <div class="hero-content">
+                    <p class="hero-eyebrow" style="color:var(--color-hardware);">Etapa 3</p>
+                    <h2 class="hero-title" style="color:var(--color-hardware);">Hardware</h2>
+                </div>
+            </div>
+
+            <!-- RESUMO DESTAQUE -->
+            <div class="card" style="border-top: 3px solid var(--color-hardware);">
+                <div class="card-header">
+                    <i class="fa-solid fa-file-lines" style="color:var(--color-hardware);"></i>
+                    <h3 style="color:var(--color-hardware);">Resumo — Hardware</h3>
+                    <span class="card-badge" style="background:rgba(168,85,247,0.15);color:#d8b4fe;">RESUMO</span>
+                </div>
+                <div class="summary-box" style="border-color:var(--color-hardware);">
+                    A infraestrutura física dos datacenters de IA é composta por componentes de alta especialização, projetados para suportar cargas computacionais massivas e contínuas. O elemento central são as <strong>GPUs (Unidades de Processamento Gráfico)</strong>, em especial as GPUs da NVIDIA, otimizadas para processamento paralelo em larga escala — essenciais para o treinamento de redes neurais profundas. As <strong>CPUs</strong> assumem papel secundário, gerenciando o controle do sistema. O <strong>armazenamento (storage)</strong> distribui petabytes de dados de treinamento e modelos. Os datacenters são organizados em <strong>racks de alta densidade</strong>, sustentados por subestações elétricas dedicadas e sistemas avançados de resfriamento (ar e líquido). A dissipação de calor é um dos maiores desafios operacionais, com a tendência crescente ao <strong>resfriamento líquido</strong>, que permite maior eficiência térmica e densidades computacionais superiores. O Projeto Stargate projeta expansão para a escala de gigawatts, consolidando a IA como infraestrutura industrial de relevância global.
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-tv" style="color:var(--color-hardware);"></i>
+                        <h3>GPUs — O Coração da IA</h3>
+                    </div>
+                    <p>As <strong>GPUs (Graphics Processing Units)</strong> são os componentes centrais dos datacenters de IA. Ao contrário das CPUs, as GPUs são otimizadas para <strong>processamento paralelo massivo</strong>, executando milhares de operações simultâneas — fundamental para o treinamento de redes neurais profundas e modelos de linguagem de grande escala.</p>
+                    <div class="tag-group">
+                        <span class="tag">NVIDIA H100</span>
+                        <span class="tag">NVIDIA A100</span>
+                        <span class="tag">Processamento Paralelo</span>
+                        <span class="tag">Tensor Cores</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-memory" style="color:var(--color-hardware);"></i>
+                        <h3>CPUs e Storage</h3>
+                    </div>
+                    <p>As <strong>CPUs</strong> gerenciam o controle geral do sistema, a execução de tarefas auxiliares e o orquestramento dos processos de treinamento. O <strong>storage</strong> distribui petabytes de dados, incluindo datasets de treinamento, modelos treinados, logs e registros de execução. Deve ser rápido, escalável e altamente redundante.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-building" style="color:var(--color-hardware);"></i>
+                    <h3>Estrutura Física do Datacenter de IA</h3>
+                </div>
+                <p>A estrutura física é composta por camadas interdependentes. A <strong>camada de energia</strong> exige subestações elétricas dedicadas, sistemas de redundância e geradores de emergência — a energia é um fator estratégico que limita a expansão. A <strong>camada de resfriamento</strong> é crítica: o alto desempenho dos equipamentos gera calor intenso, dissipado por sistemas de arrefecimento a ar (tradicional) ou <strong>resfriamento líquido</strong> (moderno, mais eficiente). Os equipamentos são organizados em <strong>racks</strong> de alta densidade, com integração direta com os sistemas de refrigeração.</p>
+                <div class="stat-row">
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-hardware);">GW</div>
+                        <div class="label">Escala energética dos novos datacenters</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-hardware);">10⁶+</div>
+                        <div class="label">GPUs em operação (escala global)</div>
+                    </div>
+                    <div class="stat-chip">
+                        <div class="value" style="color:var(--color-hardware);">PB</div>
+                        <div class="label">Dados armazenados (Petabytes)</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-bolt" style="color:var(--color-hardware);"></i>
+                        <h3>NVIDIA — Líder em Hardware de IA</h3>
+                    </div>
+                    <p>A <strong>NVIDIA</strong> domina o mercado de hardware para IA, fornecendo GPUs como o <strong>H100</strong> e o <strong>A100</strong> para os maiores datacenters do mundo. Sem as GPUs da NVIDIA, a IA moderna em larga escala praticamente não existiria na forma atual. A empresa também desenvolve tecnologias como o <strong>NVLink</strong>, para comunicação de ultra-alta velocidade entre GPUs.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-temperature-high" style="color:var(--color-hardware);"></i>
+                        <h3>Resfriamento Líquido</h3>
+                    </div>
+                    <p>O <strong>resfriamento líquido</strong> está se tornando padrão nos datacenters de IA de nova geração. Ele permite maior <strong>eficiência térmica</strong>, maior densidade computacional por rack e consumo de energia total reduzido. Sistemas de resfriamento líquido direto (DLC) são aplicados diretamente sobre os chips, removendo o calor de forma muito mais eficiente que o ar.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ 4. TIC ══ -->
+        <section id="tic" class="section">
+            <div class="hero-banner img-tic">
+                <div class="hero-content">
+                    <p class="hero-eyebrow" style="color:var(--color-tic);">Etapa 4</p>
+                    <h2 class="hero-title" style="color:var(--color-tic);">Tecnologia de Informação e Comunicação</h2>
+                </div>
+            </div>
+
+            <!-- RESUMO DESTAQUE -->
+            <div class="card" style="border-top: 3px solid var(--color-tic);">
+                <div class="card-header">
+                    <i class="fa-solid fa-file-lines" style="color:var(--color-tic);"></i>
+                    <h3 style="color:var(--color-tic);">Resumo — TIC</h3>
+                    <span class="card-badge" style="background:rgba(245,158,11,0.15);color:#fde68a;">RESUMO</span>
+                </div>
+                <div class="summary-box" style="border-color:var(--color-tic);">
+                    As Tecnologias de Informação e Comunicação (TIC) formam o sistema nervoso da infraestrutura de IA. A <strong>computação em nuvem</strong> permite acesso remoto escalável a recursos computacionais, com plataformas como o <strong>Microsoft Azure</strong> sendo fundamentais para a OpenAI. Internamente, os datacenters utilizam <strong>redes de alta velocidade</strong> (InfiniBand, NVLink) para garantir comunicação de baixa latência entre milhares de GPUs durante o treinamento. A <strong>arquitetura distribuída</strong> divide o processamento entre múltiplos dispositivos, garantindo escalabilidade e redundância. O <strong>High Performance Computing (HPC)</strong> transforma datacenters em supercomputadores distribuídos. As TICs também estruturam o ciclo de vida dos dados: da ingestão e pré-processamento ao treinamento dos modelos, armazenamento e inferência em tempo real. O crescimento exponencial da IA e a dependência de <strong>Big Data</strong> (volume, velocidade e variedade) fazem das TICs um elemento estratégico indispensável, cujo avanço determinará a capacidade global de desenvolvimento e democratização da Inteligência Artificial.
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-cloud" style="color:var(--color-tic);"></i>
+                        <h3>Computação em Nuvem e IA</h3>
+                    </div>
+                    <p>A <strong>computação em nuvem</strong> é o pilar que permite escalar recursos computacionais sob demanda, sem necessidade de infraestrutura física própria. A <strong>Microsoft Azure</strong> é a plataforma que sustenta os workloads de IA da OpenAI, oferecendo instâncias de GPU, armazenamento distribuído e redes de alta velocidade em escala global.</p>
+                    <div class="tag-group">
+                        <span class="tag">Microsoft Azure</span>
+                        <span class="tag">IaaS</span>
+                        <span class="tag">PaaS</span>
+                        <span class="tag">Escalabilidade</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-diagram-project" style="color:var(--color-tic);"></i>
+                        <h3>HPC — High Performance Computing</h3>
+                    </div>
+                    <p>O <strong>HPC</strong> utiliza supercomputadores e clusters de alta performance para resolver problemas de computação intensiva. Os datacenters de IA modernos funcionam como <strong>sistemas HPC distribuídos</strong>, onde milhares de nós computacionais trabalham em conjunto para treinar modelos como o GPT-4 em prazos viáveis.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-network-wired" style="color:var(--color-tic);"></i>
+                    <h3>Redes de Alta Velocidade — O Sistema Nervoso do Datacenter</h3>
+                </div>
+                <p>Durante o treinamento de modelos de grande escala, milhares de GPUs precisam trocar gradientes e parâmetros constantemente. Isso exige redes com <strong>latência ultrabaixa</strong>, alta largura de banda e confiabilidade absoluta. As tecnologias utilizadas incluem:</p>
+                <div class="card-grid" style="margin-top:1.2rem; margin-bottom:0;">
+                    <div style="padding:1rem 1.2rem; background:rgba(245,158,11,0.07); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
+                        <p style="color:#fbbf24; font-weight:700; font-size:1rem; margin-bottom:0.4rem;">InfiniBand</p>
+                        <p>Protocolo de rede de alta velocidade com latência em nanossegundos, amplamente utilizado para comunicação entre nós em clusters HPC e datacenters de IA.</p>
+                    </div>
+                    <div style="padding:1rem 1.2rem; background:rgba(245,158,11,0.07); border-radius:10px; border:1px solid rgba(245,158,11,0.2);">
+                        <p style="color:#fbbf24; font-weight:700; font-size:1rem; margin-bottom:0.4rem;">NVLink</p>
+                        <p>Interconexão de alta banda desenvolvida pela NVIDIA para comunicação direta entre GPUs, eliminando o gargalo do barramento PCIe e multiplicando a largura de banda disponível.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-solid fa-arrows-rotate" style="color:var(--color-tic);"></i>
+                    <h3>Fluxo de Funcionamento do Datacenter de IA</h3>
+                </div>
+                <p>O ciclo de vida de dados em um datacenter de IA segue etapas bem definidas:</p>
+                <div style="display:flex; flex-direction:column; gap:0.7rem; margin-top:1rem;">
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">01</span>
+                        <p style="text-align:left; margin:0;"><strong>Entrada de Dados</strong> — Coleta e ingestão de grandes volumes de dados brutos de diversas fontes.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">02</span>
+                        <p style="text-align:left; margin:0;"><strong>Pré-processamento</strong> — Limpeza, normalização e preparação dos dados para análise.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">03</span>
+                        <p style="text-align:left; margin:0;"><strong>Processamento (GPU Cluster)</strong> — Treinamento dos modelos com uso intensivo de GPUs em paralelo.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">04</span>
+                        <p style="text-align:left; margin:0;"><strong>Armazenamento</strong> — Salvamento de modelos treinados e datasets em storage distribuído.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">05</span>
+                        <p style="text-align:left; margin:0;"><strong>Inferência</strong> — Aplicação do modelo em produção, gerando respostas em tempo real.</p>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:1rem; padding:0.9rem 1.2rem; background:rgba(255,255,255,0.03); border-radius:8px; border-left:3px solid var(--color-tic);">
+                        <span style="color:var(--color-tic); font-weight:800; font-family:'Syne',sans-serif; min-width:30px;">06</span>
+                        <p style="text-align:left; margin:0;"><strong>Monitoramento</strong> — Análise de desempenho, consumo energético e detecção de falhas.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-database" style="color:var(--color-tic);"></i>
+                        <h3>IA e Big Data</h3>
+                    </div>
+                    <p>A IA depende diretamente de <strong>Big Data</strong>. Os três Vs fundamentais — <strong>Volume</strong> (escala de dados), <strong>Velocidade</strong> (velocidade de processamento e geração) e <strong>Variedade</strong> (diversidade de fontes e formatos) — definem a capacidade de treinamento de modelos modernos. Sem Big Data, não há IA de grande escala.</p>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <i class="fa-solid fa-globe" style="color:var(--color-tic);"></i>
+                        <h3>Arquitetura Distribuída</h3>
+                    </div>
+                    <p>Os datacenters de IA utilizam <strong>arquiteturas distribuídas</strong> onde o processamento é dividido entre milhares de dispositivos. Isso garante escalabilidade horizontal, alta performance e redundância — se um nó falha, os demais continuam operando. É o modelo que permite o treinamento de modelos com centenas de bilhões de parâmetros.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ══ 5. TERMINAL PYTHON ══ -->
+        <section id="python" class="section">
+            <div class="hero-banner img-python">
+                <div class="hero-content">
+                    <p class="hero-eyebrow" style="color:var(--color-python);">Etapa 5</p>
+                    <h2 class="hero-title" style="color:var(--color-python);">Terminal Python</h2>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <i class="fa-brands fa-python" style="color:var(--color-python);"></i>
+                    <h3 style="color:var(--color-python);">Questionário Interativo — Infraestrutura de IA</h3>
+                    <span class="card-badge" style="background:rgba(239,68,68,0.15);color:#fca5a5;">APÊNDICE D</span>
+                </div>
+                <p style="margin-bottom:1.5rem;">Teste seus conhecimentos sobre os conceitos abordados no PIM I. Responda com <strong>A</strong>, <strong>B</strong>, <strong>C</strong> ou <strong>D</strong> e pressione Enter.</p>
+                <div class="terminal-container">
+                    <div class="terminal-topbar">
+                        <span class="tb-dot tb-red"></span>
+                        <span class="tb-dot tb-yellow"></span>
+                        <span class="tb-dot tb-green"></span>
+                        <span class="tb-title">python3 questionario_pim.py</span>
+                    </div>
+                    <div class="terminal-body" id="terminal">
+                        <pre class="terminal-output" id="termOutput"></pre>
+                        <div class="terminal-input-line">
+                            <span class="terminal-prompt">usuario@openai-server:~$</span>
+                            <input type="text" class="terminal-input" id="termInput" placeholder="Digite sua resposta aqui..." aria-label="Resposta do questionário" autocomplete="off" spellcheck="false">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main><!-- /main-content -->
+
+    <!-- ══════════ CHATBOT ══════════ -->
+    <div class="chat-widget">
+        <div class="chat-window" id="chatWindow" role="dialog" aria-label="Assistente PIM" aria-hidden="true">
+            <div class="chat-header">
+                <div class="chat-header-left">
+                    <i class="fa-solid fa-robot"></i>
+                    <span>Assistente PIM · UNIP.IA</span>
+                </div>
+                <button class="close-chat" id="closeChatBtn" type="button" aria-label="Fechar chat"><i class="fa-solid fa-xmark" aria-hidden="true"></i></button>
+            </div>
+            <div class="chat-body" id="chatBody">
+                <div class="chat-msg msg-bot">Olá! Sou o assistente do PIM I sobre <strong>Datacenters da OpenAI</strong>. Posso esclarecer dúvidas sobre as 4 áreas: <em>Perfil da Organização</em>, <em>Ética</em>, <em>Hardware</em> e <em>TIC</em>. O que você quer saber?</div>
+            </div>
+            <div class="chat-input-area">
+                <input type="text" class="chat-input" id="userInput" placeholder="Pergunte algo sobre o PIM..." aria-label="Mensagem para o assistente">
+                <button class="chat-send" id="chatSendBtn" type="button" aria-label="Enviar mensagem"><i class="fa-solid fa-paper-plane" aria-hidden="true"></i></button>
+            </div>
+        </div>
+        <button class="chat-btn" id="chatToggleBtn" type="button" aria-label="Abrir chat" aria-expanded="false" aria-controls="chatWindow"><i class="fa-solid fa-robot" aria-hidden="true"></i></button>
+    </div>
+
+    <!-- ══════════ SCRIPTS ══════════ -->
+    <script>
+        // ── NAVEGAÇÃO ──
+        const navBtns = document.querySelectorAll('.nav-btn');
+        const sections = document.querySelectorAll('.section');
+        const mainBg = document.getElementById('main-bg');
+        const root = document.documentElement;
+        const logo = document.querySelector('.logo i');
+        const logoSpan = document.querySelector('.logo span');
+
+        const colorMap = {
+            perfil:   'var(--color-perfil)',
+            etica:    'var(--color-etica)',
+            hardware: 'var(--color-hardware)',
+            tic:      'var(--color-tic)',
+            python:   'var(--color-python)',
+        };
+
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                navBtns.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                sections.forEach(s => s.classList.remove('active'));
+                document.getElementById(target).classList.add('active');
+                mainBg.className = `main-content bg-${target}`;
+                const col = colorMap[target];
+                root.style.setProperty('--active-color', col);
+                mainBg.scrollTop = 0;
+            });
+        });
+
+        // ── TERMINAL QUIZ ──
+        const terminal = document.getElementById('terminal');
+        const termOutput = document.getElementById('termOutput');
+        const termInput = document.getElementById('termInput');
+
+        const perguntas = [
+            {
+                pergunta: `Questionário — Infraestrutura de IA e Datacenters
+Desenvolvido como parte do PIM I — UNIP · ADS 2026
+════════════════════════════════════════════════
+[QUESTÃO 1/8]
+
+O que é Inteligência Artificial?
+
+A) Capacidade de sistemas realizarem tarefas que exigiriam inteligência humana.
+B) Apenas armazenamento de dados em servidores.
+C) Um tipo de hardware usado em computadores.
+D) Um sistema exclusivo para jogos digitais.
+
+Digite a alternativa correta:`,
+                correta: "A"
+            },
+            {
+                pergunta: `[QUESTÃO 2/8]
+
+Qual é o principal componente de hardware nos datacenters de IA?
+
+A) CPU (Processador Central)
+B) SSD (Armazenamento Sólido)
+C) GPU (Unidade de Processamento Gráfico)
+D) Modem de rede convencional
+
+Digite a alternativa correta:`,
+                correta: "C"
+            },
+            {
+                pergunta: `[QUESTÃO 3/8]
+
+O que significa a sigla PUE no contexto de datacenters?
+
+A) Processing Unit Efficiency
+B) Power Usage Effectiveness
+C) Parallel Unit Execution
+D) Primary Utility Engine
+
+Digite a alternativa correta:`,
+                correta: "B"
+            },
+            {
+                pergunta: `[QUESTÃO 4/8]
+
+Qual é a principal diferença entre TREINAMENTO e INFERÊNCIA em IA?
+
+A) Treinamento usa CPUs; inferência usa GPUs.
+B) Treinamento é o processo de aprender; inferência é o uso do modelo treinado.
+C) Treinamento é mais rápido que a inferência.
+D) Não há diferença; são processos idênticos.
+
+Digite a alternativa correta:`,
+                correta: "B"
+            },
+            {
+                pergunta: `[QUESTÃO 5/8]
+
+O Projeto Stargate da OpenAI está associado a qual aspecto?
+
+A) Desenvolvimento de jogos em realidade virtual
+B) Criação de um sistema operacional próprio
+C) Expansão da infraestrutura de IA em escala gigawatt
+D) Pesquisa em biologia computacional
+
+Digite a alternativa correta:`,
+                correta: "C"
+            },
+            {
+                pergunta: `[QUESTÃO 6/8]
+
+Um desafio ético central levantado pelo trabalho em relação à IA é:
+
+A) Dificuldade de usar computadores básicos
+B) Centralização de poder e controle de dados por poucas corporações
+C) Falta de energia elétrica em países ricos
+D) Baixa qualidade de monitores de alta resolução
+
+Digite a alternativa correta:`,
+                correta: "B"
+            },
+            {
+                pergunta: `[QUESTÃO 7/8]
+
+Qual tecnologia de rede é utilizada para comunicação de ultra-alta velocidade entre GPUs em datacenters de IA?
+
+A) Ethernet 100Mbps convencional
+B) Wi-Fi 6
+C) InfiniBand e NVLink
+D) Bluetooth 5.0
+
+Digite a alternativa correta:`,
+                correta: "C"
+            },
+            {
+                pergunta: `[QUESTÃO 8/8]
+
+Quais são os três Vs fundamentais do Big Data?
+
+A) Velocidade, Valor e Versatilidade
+B) Volume, Velocidade e Variedade
+C) Veracidade, Visibilidade e Velocidade
+D) Volume, Virtualidade e Verificação
+
+Digite a alternativa correta:`,
+                correta: "B"
+            }
+        ];
+
+        let indicePergunta = 0;
+        let acertos = 0;
+        let erros = 0;
+        let estadoQuiz = "QUIZ";
+
+        function imprimir(texto) {
+            termOutput.textContent += texto + "\n";
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function iniciarQuiz() {
+            indicePergunta = 0; acertos = 0; erros = 0; estadoQuiz = "QUIZ";
+            termOutput.textContent = "";
+            imprimir("Iniciando kernel Python 3.11...");
+            imprimir("Carregando módulo questionario_pim.py...");
+            imprimir("Pronto!\n");
+            imprimir(perguntas[0].pergunta);
+        }
+
+        function processarTerminalQuiz(cmd) {
+            const resposta = cmd.trim().toUpperCase();
+            if (estadoQuiz === "QUIZ") {
+                if (!["A","B","C","D"].includes(resposta)) {
+                    imprimir("⚠ Opção inválida. Digite apenas A, B, C ou D.\n");
+                    imprimir(perguntas[indicePergunta].pergunta);
+                    return;
+                }
+                if (resposta === perguntas[indicePergunta].correta) {
+                    imprimir("✔ Resposta CORRETA!\n");
+                    acertos++;
+                } else {
+                    imprimir(`✘ Resposta ERRADA. A correta era: ${perguntas[indicePergunta].correta}\n`);
+                    erros++;
+                }
+                indicePergunta++;
+                if (indicePergunta < perguntas.length) {
+                    imprimir(perguntas[indicePergunta].pergunta);
+                } else {
+                    const pct = Math.round((acertos / perguntas.length) * 100);
+                    imprimir("════════════════════════════════════════════════");
+                    imprimir("RESULTADO FINAL");
+                    imprimir("════════════════════════════════════════════════");
+                    imprimir(`Acertos : ${acertos}/${perguntas.length}`);
+                    imprimir(`Erros   : ${erros}/${perguntas.length}`);
+                    imprimir(`Aproveit.: ${pct}%`);
+                    imprimir(pct >= 70 ? "Status  : APROVADO ✔" : "Status  : REPROVADO ✘");
+                    imprimir("════════════════════════════════════════════════");
+                    imprimir("\nDeseja repetir o questionário? (S/N):");
+                    estadoQuiz = "REPETIR";
+                }
+            } else if (estadoQuiz === "REPETIR") {
+                if (resposta === "S") { imprimir(""); iniciarQuiz(); }
+                else if (resposta === "N") { imprimir("Encerrando. Até mais! 👋"); estadoQuiz = "FIM"; }
+                else { imprimir("Digite apenas S (sim) ou N (não)."); }
+            } else {
+                imprimir("Questionário encerrado. Recarregue a página para reiniciar.");
+            }
+        }
+
+        termInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const cmd = termInput.value.trim();
+                if (!cmd) return;
+                imprimir(`usuario@openai-server:~$ ${cmd}`);
+                termInput.value = '';
+                processarTerminalQuiz(cmd);
+            }
+        });
+        iniciarQuiz();
+
+        // ── HAMBURGER MENU (MOBILE) ──
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const sidebarEl    = document.querySelector('.sidebar');
+        const overlay      = document.getElementById('sidebarOverlay');
+        const mobileSectionLabel = document.getElementById('mobileSectionLabel');
+        const mobileLogo   = document.querySelector('.mobile-logo i');
+        const mobileLogoSpan = document.querySelector('.mobile-logo span');
+
+        const sectionNames = {
+            perfil:   'Perfil da Org.',
+            etica:    'Ética e Cidadania',
+            hardware: 'Hardware',
+            tic:      'TIC',
+            python:   'Terminal Python',
+        };
+
+        function openSidebar() {
+            const openChatWindow = document.getElementById('chatWindow');
+            const chatToggle = document.getElementById('chatToggleBtn');
+            if (openChatWindow) {
+                openChatWindow.style.display = 'none';
+                openChatWindow.setAttribute('aria-hidden', 'true');
+            }
+            if (chatToggle) {
+                chatToggle.setAttribute('aria-expanded', 'false');
+                chatToggle.setAttribute('aria-label', 'Abrir chat');
+            }
+            sidebarEl.classList.add('open');
+            overlay.classList.add('open');
+            overlay.setAttribute('aria-hidden', 'false');
+            hamburgerBtn.setAttribute('aria-expanded', 'true');
+            hamburgerBtn.setAttribute('aria-label', 'Fechar menu');
+            hamburgerBtn.innerHTML = '<i class="fa-solid fa-xmark" aria-hidden="true"></i>';
+        }
+        function closeSidebar() {
+            sidebarEl.classList.remove('open');
+            overlay.classList.remove('open');
+            overlay.setAttribute('aria-hidden', 'true');
+            hamburgerBtn.setAttribute('aria-expanded', 'false');
+            hamburgerBtn.setAttribute('aria-label', 'Abrir menu');
+            hamburgerBtn.innerHTML = '<i class="fa-solid fa-bars" aria-hidden="true"></i>';
+        }
+
+        hamburgerBtn.addEventListener('click', () => {
+            sidebarEl.classList.contains('open') ? closeSidebar() : openSidebar();
+        });
+        overlay.addEventListener('click', closeSidebar);
+
+        // Close sidebar on nav item click (mobile) and update label
+        navBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const target = btn.getAttribute('data-target');
+                if (mobileSectionLabel) mobileSectionLabel.textContent = sectionNames[target] || 'PIM I · ADS';
+                // Sync mobile logo color
+                const col = colorMap[target];
+                if (mobileLogo)    mobileLogo.style.color = col;
+                if (mobileLogoSpan) mobileLogoSpan.style.color = col;
+                closeSidebar();
+            });
+        });
+
+        // ── CHATBOT ──
+        const chatWindow = document.getElementById('chatWindow');
+        const chatBody = document.getElementById('chatBody');
+        const userInput = document.getElementById('userInput');
+        const closeChatBtn = document.getElementById('closeChatBtn');
+        const chatSendBtn = document.getElementById('chatSendBtn');
+        const chatToggleBtn = document.getElementById('chatToggleBtn');
+
+        const conhecimento = [
+            {
+                chaves: ["objetivo","pim","resumo","trabalho","o que é","o que e"],
+                resposta: "O PIM I da UNIP analisa a infraestrutura de <strong>datacenters da OpenAI</strong> sob 4 perspectivas: <em>tecnológica</em> (hardware, redes, IA), <em>ambiental</em> (consumo energético, carbono, água), <em>ética</em> (centralização, controle de dados) e <em>econômica</em> (investimentos, desigualdade). A metodologia é bibliográfica."
+            },
+            {
+                chaves: ["openai","perfil","organização","organizacao","empresa","stargate"],
+                resposta: "A <strong>OpenAI</strong> é uma organização de pesquisa em IA responsável pelo ChatGPT e GPT-4. Opera infraestruturas distribuídas e altamente escaláveis. O <strong>Projeto Stargate</strong> representa um investimento de mais de US$500 bilhões para expandir datacenters em escala de gigawatts, tornando a IA uma infraestrutura estratégica global como energia e telecomunicações."
+            },
+            {
+                chaves: ["etica","ética","cidadania","centralização","dados","viés","vies","privacidade"],
+                resposta: "No tema <strong>Ética e Cidadania</strong>, o trabalho destaca 3 problemas centrais: (1) <strong>Centralização tecnológica</strong> — poucos controlam a IA global; (2) <strong>Controle de dados</strong> — falta transparência sobre uso; (3) <strong>Exclusão digital</strong> — acesso desigual amplifica desigualdades. A soberania digital de nações pode estar comprometida."
+            },
+            {
+                chaves: ["hardware","gpu","cpu","resfriamento","cooling","rack","servidor","nvidia"],
+                resposta: "No tema <strong>Hardware</strong>, as <strong>GPUs</strong> (especialmente NVIDIA H100/A100) são o componente central — otimizadas para processamento paralelo, essenciais para treinar redes neurais. O maior desafio físico é o <strong>resfriamento</strong>: o calor gerado exige sistemas de arrefecimento a ar ou líquido. Datacenters de IA operam em escala de <strong>gigawatts</strong>."
+            },
+            {
+                chaves: ["tic","tecnologia","informação","nuvem","cloud","azure","rede","infra","hpc","distribuída"],
+                resposta: "Na área de <strong>TIC</strong>, os pilares são: <em>computação em nuvem</em> (Microsoft Azure para a OpenAI), <em>HPC</em> (clusters de alta performance), <em>redes de alta velocidade</em> (InfiniBand e NVLink com latência nanossegundos) e <em>arquitetura distribuída</em>. Sem TIC avançada, não há IA em larga escala possível."
+            },
+            {
+                chaves: ["pue","eficiência","eficiencia","energia","consumo","gigawatt","gw","sustentabilidade"],
+                resposta: "O <strong>PUE (Power Usage Effectiveness)</strong> mede eficiência energética. Fórmula: PUE = Energia Total ÷ Energia de TI. Ideal = 1.0. Datacenters modernos alcançam PUE ≈ 1.2; tradicionais chegam a 2.0. Datacenters de IA consomem energia em escala de <strong>gigawatts</strong> — comparável a pequenas cidades. Este é um dos maiores desafios éticos e ambientais da IA."
+            },
+            {
+                chaves: ["machine learning","deep learning","redes neurais","ia","inteligência","treinamento","inferência"],
+                resposta: "<strong>IA</strong> é a capacidade de sistemas realizarem tarefas humanas. <strong>Machine Learning</strong> aprende padrões a partir de dados. <strong>Deep Learning</strong> usa redes neurais profundas — base dos modelos GPT. <strong>Treinamento</strong> = fase de aprendizado (alto custo computacional). <strong>Inferência</strong> = uso do modelo em produção (respostas em tempo real)."
+            },
+            {
+                chaves: ["big data","dados","volume","variedade","velocidade"],
+                resposta: "A IA depende diretamente de <strong>Big Data</strong>. Os 3 Vs fundamentais: <strong>Volume</strong> (escala massiva de dados), <strong>Velocidade</strong> (processamento em tempo real) e <strong>Variedade</strong> (texto, imagem, áudio, vídeo). Sem Big Data, não há IA de grande escala — os datasets de treinamento do GPT-4 somam petabytes de informação."
+            },
+            {
+                chaves: ["olá","ola","oi","bom dia","boa tarde","boa noite","tudo bem"],
+                resposta: "Olá! Sou o assistente do PIM I sobre <strong>Datacenters da OpenAI</strong>. Posso explicar qualquer das 4 áreas do trabalho: <em>Perfil da Organização</em>, <em>Ética e Cidadania</em>, <em>Hardware</em> ou <em>TIC</em>. O que você quer explorar?"
+            }
+        ];
+
+        function setChatOpen(isOpen) {
+            chatWindow.style.display = isOpen ? 'flex' : 'none';
+            chatWindow.setAttribute('aria-hidden', String(!isOpen));
+            if (chatToggleBtn) {
+                chatToggleBtn.setAttribute('aria-expanded', String(isOpen));
+                chatToggleBtn.setAttribute('aria-label', isOpen ? 'Fechar chat' : 'Abrir chat');
+            }
+        }
+
+        function toggleChat() {
+            setChatOpen(chatWindow.style.display !== 'flex');
+        }
+
+        if (chatToggleBtn) chatToggleBtn.addEventListener('click', toggleChat);
+        if (closeChatBtn) closeChatBtn.addEventListener('click', () => setChatOpen(false));
+        if (chatSendBtn) chatSendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') sendMessage();
+        });
+
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (!text) return;
+            appendMessage(text, 'msg-user');
+            userInput.value = '';
+            const typingId = 'typing-' + Date.now();
+            const div = document.createElement('div');
+            div.className = 'chat-msg msg-bot';
+            div.id = typingId;
+            div.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Processando...';
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+            setTimeout(() => {
+                document.getElementById(typingId)?.remove();
+                appendMessage(buscarResposta(text.toLowerCase()), 'msg-bot', true);
+            }, 700);
+        }
+
+        function buscarResposta(q) {
+            for (let item of conhecimento) {
+                for (let chave of item.chaves) {
+                    if (q.includes(chave)) return item.resposta;
+                }
+            }
+            return "Boa pergunta! Posso explicar sobre a <strong>OpenAI</strong>, os <strong>datacenters de IA</strong>, <strong>GPUs e Hardware</strong>, <strong>redes TIC</strong>, <strong>ética e sustentabilidade</strong> ou o <strong>índice PUE</strong>. Escolha um desses temas!";
+        }
+
+        function appendMessage(text, cls, allowHtml = false) {
+            const div = document.createElement('div');
+            div.className = `chat-msg ${cls}`;
+            if (allowHtml) {
+                div.innerHTML = text.replace(/\n/g, '<br>');
+            } else {
+                div.textContent = text;
+            }
+            chatBody.appendChild(div);
+            chatBody.scrollTop = chatBody.scrollHeight;
+        }
+    </script>
+</body>
+</html>
